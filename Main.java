@@ -36,25 +36,12 @@ class RepeatsAndFloorsCityCounter implements CityCounter {
   }
   @Override
   public void iterate(Addr addr) {
-    Integer repeats = addr_repeats_num.get(addr);
-    if(repeats != null) {
-      addr_repeats_num.put(addr, repeats + 1);
-    }
-    else {
-      addr_repeats_num.put(addr, 1);
-    }
+    /* Increment number of repeats or set it to 1 */
+    addr_repeats_num.compute(addr, (key, value) -> value == null ? 1 : value + 1);
 
     /* Count how many there are houses with from 1 to *max_floors* floors */
     if(addr.floor() > max_floors) return;
-    int floors[] = each_floors_num.get(addr.city());
-    if(floors != null) {
-      floors[addr.floor() - 1]++;
-    }
-    else {
-      int counts[] = new int[5];
-      counts[addr.floor() - 1] = 1;
-      each_floors_num.put(addr.city(), counts);
-    }
+    each_floors_num.computeIfAbsent(addr.city(), key -> new int[max_floors])[addr.floor() - 1]++;
   }
 
   public final HashMap<Addr, Integer> get_addr_repeats_num() { return addr_repeats_num; }

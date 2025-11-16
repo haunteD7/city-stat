@@ -2,6 +2,8 @@
 import java.util.Scanner;
 import java.io.File;
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.*;
 
@@ -22,11 +24,11 @@ record Addr(String city, String street, int house, int floor) {
   }
 }
 
-abstract class CityCounter {
-  public void iterate(Addr addr) {}
+interface CityCounter {
+  public void iterate(Addr addr);
 }
 /* Counts repeated addresses and number of floors *max_floors* in every city */
-class RepeatsAndFloorsCityCounter extends CityCounter {
+class RepeatsAndFloorsCityCounter implements CityCounter {
   public RepeatsAndFloorsCityCounter(int max_floors) {
     this.max_floors = max_floors;
     this.addr_repeats_num = new HashMap<>();
@@ -159,6 +161,8 @@ class Main {
         file_type = FileType.CSV;
       }
 
+      Instant time_start = Instant.now();
+
       var counter = new RepeatsAndFloorsCityCounter(MAX_FLOORS);
       switch (file_type) {
         case XML: {
@@ -176,6 +180,7 @@ class Main {
           break;
         }
       }
+      Instant time_end = Instant.now();
 
       /* Printing results */
       HashMap<Addr, Integer> addr_repeats_num = counter.get_addr_repeats_num();
@@ -192,6 +197,7 @@ class Main {
           System.out.println((i + 1) + " floors: " + entry.getValue()[i]);
         }
       }
+      System.out.println("Completed in: " + Duration.between(time_start, time_end).toMillis() + " ms");
     }
 
     in.close();
